@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Mees' weekoverzicht</title>
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#22303C">
+<style>
+  :root{
+    --ink:#22303C;
+    --paper:#FAF7F0;
+    --card:#FFFFFF;
+    --muted:#9BA3AC;
+    --line:#E7E2D6;
+    --school:#3DA5D9;
+    --opvang:#FFB347;
+    --hockey:#63C29A;
+    --vrij:#F6C94C;
+    --overig:#B39DDB;
+    --grey:#C9CDD2;
+    --accent:#E4633E;
+    --radius:18px;
+    --today-ring:#E4633E;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    overscroll-behavior-y:none;
+  }
+  .app{
+    max-width:1100px;
+    margin:0 auto;
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---------- Header ---------- */
+  header{
+    padding:calc(env(safe-area-inset-top,0px) + 18px) 20px 10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .title-block h1{
+    font-family:Georgia,"Iowan Old Style",serif;
+    font-size:26px;
+    margin:0;
+    letter-spacing:.2px;
+  }
+  .title-block p{
+    margin:2px 0 0;
+    font-size:13px;
+    color:var(--muted);
+  }
+  .lockbtn{
+    width:42px;height:42px;border-radius:50%;
+    border:1px solid var(--line);
+    background:var(--card);
+    display:flex;align-items:center;justify-content:center;
+    font-size:18px;
+    color:var(--ink);
+    flex:none;
+  }
+  .lockbtn.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
+
+  .status-banner{
+    margin:0 20px 8px;
+    padding:8px 12px;
+    border-radius:12px;
+    font-size:12.5px;
+    background:#FFF3E4;
+    color:#8A5A21;
+    border:1px solid #F3D9B4;
+    display:none;
+  }
+  .status-banner.show{display:block;}
+
+  .edit-hint{
+    margin:0 20px 12px;
+    padding:10px 14px;
+    border-radius:14px;
+    background:#EFEAFB;
+    color:#4B3F7A;
+    font-size:12.5px;
+    line-height:1.5;
+    display:none;
+  }
+  .edit-hint.show{display:block;}
+
+  .weekday-pattern-btn{
+    display:none;
+    width:calc(100% - 40px); margin:0 20px 12px;
+    padding:12px 16px; border-radius:14px; border:none;
+    background:var(--ink); color:#fff; font-size:14px; font-weight:600;
+  }
+  .weekday-pattern-btn.show{ display:block; }
+  .btn-row-2{ display:none; gap:8px; padding:0 20px 12px; }
+  .btn-row-2.show{ display:flex; }
+  .btn-row-2 .weekday-pattern-btn{ margin:0; flex:1; width:auto; display:block; }
+  .weekday-pattern-btn.ghost{
+    background:var(--card); color:var(--ink); border:1px solid var(--line); font-size:12.5px; padding:11px 8px;
+  }
+
+  .weekday-row{
+    display:flex; align-items:center; gap:12px;
+    padding:12px 4px; border-bottom:1px solid var(--line);
+  }
+  .weekday-row:last-child{ border-bottom:none; }
+  .weekday-row .wd-name{ font-weight:700; width:84px; flex:none; font-size:14px; }
+  .weekday-row .wd-preview{ flex:1; display:flex; gap:5px; flex-wrap:wrap; }
+  .weekday-row .wd-chip{
+    width:24px;height:24px;border-radius:7px; display:flex;align-items:center;justify-content:center;
+  }
+  .weekday-row .wd-chip svg{ width:13px;height:13px; }
+  .weekday-row .wd-arrow{ color:var(--muted); font-size:16px; flex:none; }
+
+  .field-row{ margin-bottom:12px; }
+  .field-row label{ display:block; font-size:12px; color:var(--muted); margin-bottom:4px; font-weight:600; }
+  .field-input{
+    width:100%; border:1px solid var(--line); border-radius:10px; padding:9px 10px; font-size:14px;
+    background:var(--card); color:var(--ink); font-family:inherit;
+  }
+  .field-row-2{ display:flex; gap:10px; }
+  .field-row-2 .field-row{ flex:1; }
+  .interval-row{ display:flex; align-items:center; gap:8px; }
+  .interval-row .field-input{ width:64px; flex:none; text-align:center; }
+  .delete-entry-link{
+    display:block; text-align:center; color:var(--accent); font-size:13px; font-weight:600;
+    background:none; border:none; padding:10px; margin-bottom:4px; width:100%;
+  }
+
+  /* ---------- Pager ---------- */
+  .pager-row{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    padding:2px 20px 10px;
+  }
+  .pager-btn{
+    width:34px;height:34px;border-radius:50%;
+    border:1px solid var(--line); background:var(--card);
+    display:flex;align-items:center;justify-content:center;
+    font-size:16px; color:var(--ink);
+  }
+  .pager-btn:disabled{opacity:.3;}
+  .dots{display:flex; gap:6px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--grey);}
+  .dot.active{background:var(--accent); width:16px; border-radius:4px; transition:.2s;}
+
+  /* ---------- Scroller ---------- */
+  .scroller{
+    flex:1;
+    display:flex;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:10px;
+  }
+  .scroller::-webkit-scrollbar{display:none;}
+  .page{
+    flex:0 0 100%;
+    scroll-snap-align:start;
+    padding:4px 16px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .week{
+    background:var(--card);
+    border-radius:var(--radius);
+    border:1px solid var(--line);
+    overflow:hidden;
+  }
+  .week-label{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.6px;
+    color:var(--muted);
+    padding:10px 14px 2px;
+  }
+  .allday-row{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:6px;
+    padding:6px 8px 0;
+  }
+  .allday-bar{
+    grid-row:1;
+    height:26px;
+    display:flex; align-items:center; justify-content:center; gap:5px;
+    color:#fff; font-size:11px; font-weight:700;
+    overflow:hidden; white-space:nowrap;
+    margin:0 -3px;
+  }
+  .allday-bar.cap-start{ border-top-left-radius:8px; border-bottom-left-radius:8px; margin-left:0; padding-left:6px; }
+  .allday-bar.cap-end{ border-top-right-radius:8px; border-bottom-right-radius:8px; margin-right:0; padding-right:6px; }
+  .allday-bar.editable{ cursor:pointer; }
+  .allday-icon svg{ width:14px; height:14px; display:block; flex:none; }
+  .allday-label{ overflow:hidden; text-overflow:ellipsis; }
+  .days-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:6px;
+    padding:6px 8px 12px;
+  }
+  .day-head{
+    text-align:center;
+    font-size:10px;
+    color:var(--muted);
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+    padding-bottom:2px;
+    cursor:default;
+  }
+  .day-head.editable{ color:var(--accent); cursor:pointer; }
+  .day-col{
+    display:flex;
+    flex-direction:column;
+    border-radius:12px;
+    overflow:hidden;
+    min-height:150px;
+    background:#F4F1E9;
+    position:relative;
+  }
+  .day-col.today{ box-shadow:0 0 0 2px var(--today-ring) inset; }
+  .day-col.editable{ cursor:pointer; }
+  .daynum{
+    font-size:11px; font-weight:700; color:var(--ink);
+    padding:5px 6px 3px;
+  }
+  .slots{ flex:1; display:flex; flex-direction:column; gap:2px; padding:0 3px 3px; }
+  .slot{
+    border-radius:8px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:#fff; text-align:center;
+    padding:3px 2px;
+    gap:2px;
+  }
+  .slot svg{ width:16px; height:16px; display:block; }
+  .slot .lab{ font-size:8.5px; font-weight:700; line-height:1.05; }
+  .slot.empty{ background:transparent; }
+
+  .add-slot-btn{
+    flex:1; display:flex; align-items:center; justify-content:center;
+    color:var(--muted); font-size:20px; border-radius:8px;
+    background:rgba(0,0,0,.02);
+  }
+
+  /* ---------- Legend ---------- */
+  .legend{
+    display:flex; flex-wrap:wrap; gap:10px 16px;
+    justify-content:center;
+    padding:6px 20px 22px;
+    font-size:11.5px; color:var(--ink);
+  }
+  .legend .item{ display:flex; align-items:center; gap:5px; }
+  .legend .sw{ width:14px; height:14px; border-radius:5px; display:flex; align-items:center; justify-content:center; }
+  .legend .sw svg{ width:9px; height:9px; }
+
+  footer{
+    text-align:center; font-size:10.5px; color:var(--muted);
+    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 14px);
+  }
+
+  /* ---------- Modal (PIN + editor) ---------- */
+  .overlay{
+    position:fixed; inset:0; background:rgba(20,24,28,.5);
+    display:none; align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .sheet{
+    background:var(--paper);
+    width:100%; max-width:520px;
+    border-radius:22px 22px 0 0;
+    padding:20px 20px calc(env(safe-area-inset-bottom,0px) + 20px);
+    max-height:88vh; overflow-y:auto;
+    animation:up .18s ease-out;
+  }
+  @keyframes up{ from{ transform:translateY(24px); opacity:0;} to{ transform:translateY(0); opacity:1;} }
+  .sheet h2{ margin:0 0 4px; font-size:19px; }
+  .sheet .sub{ margin:0 0 16px; font-size:12.5px; color:var(--muted); }
+  .sheet .close{
+    position:absolute; margin-top:-6px; margin-left:calc(100% - 34px);
+    width:30px;height:30px;border-radius:50%;border:none;background:#00000010;font-size:15px;
+  }
+
+  .pin-dots{ display:flex; gap:12px; justify-content:center; margin:22px 0; }
+  .pin-dots span{ width:14px;height:14px;border-radius:50%; background:var(--grey); }
+  .pin-dots span.filled{ background:var(--accent); }
+  .keypad{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:280px; margin:0 auto; }
+  .keypad button{
+    padding:16px 0; border-radius:14px; border:1px solid var(--line);
+    background:var(--card); font-size:20px; color:var(--ink);
+  }
+  .keypad button.wide{ font-size:13px; color:var(--muted); }
+  .pin-error{ text-align:center; color:var(--accent); font-size:12.5px; height:16px; margin-top:2px; }
+
+  .slot-editor-row{
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:12px; margin-bottom:10px;
+  }
+  .slot-editor-row .top{ display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+  .slot-preview{ width:34px;height:34px;border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; flex:none; border:none; padding:0; cursor:pointer; }
+  .slot-preview svg{ width:18px;height:18px; }
+  .label-input{
+    flex:1; border:1px solid var(--line); border-radius:10px; padding:8px 10px; font-size:13.5px;
+    background:var(--paper); color:var(--ink);
+  }
+  .icon-row, .color-row{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .icon-picker{
+    background:var(--paper); border-radius:12px; padding:10px 8px 2px; margin-bottom:10px;
+    max-height:260px; overflow-y:auto; border:1px solid var(--line);
+  }
+  .icon-cat-label{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:.4px; color:var(--muted);
+    margin:6px 2px 4px; font-weight:700;
+  }
+  .icon-choice{
+    width:34px;height:34px;border-radius:10px; border:2px solid transparent;
+    background:#EFEAE0; display:flex;align-items:center;justify-content:center;
+  }
+  .icon-choice svg{ width:17px;height:17px; color:var(--ink); }
+  .icon-choice.sel{ border-color:var(--ink); }
+  .color-choice{ width:26px;height:26px;border-radius:8px; border:2px solid transparent; }
+  .color-choice.sel{ border-color:var(--ink); }
+  .color-choice.wheel{
+    position:relative; overflow:hidden; cursor:pointer;
+    background:conic-gradient(red,orange,yellow,limegreen,cyan,blue,magenta,red);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .color-choice.wheel input[type="color"]{
+    position:absolute; inset:0; width:100%; height:100%; opacity:0; border:none; padding:0; cursor:pointer;
+  }
+  .slot-preview{ width:34px;height:34px;border-radius:10px; display:flex; align-items:center; justify-content:center; color:#fff; flex:none; border:none; padding:0; }
+  .slot-preview svg{ width:18px;height:18px; }
+  .row-actions{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .span-toggle{ display:flex; gap:6px; }
+  .span-toggle button{
+    padding:6px 10px; border-radius:8px; border:1px solid var(--line); background:var(--paper); font-size:12px;
+  }
+  .span-toggle button.sel{ background:var(--ink); color:#fff; border-color:var(--ink); }
+  .mini-btn{
+    border:none; background:none; color:var(--muted); font-size:12px; padding:4px 6px;
+  }
+  .mini-btn.danger{ color:var(--accent); }
+
+  .add-slot-full{
+    width:100%; padding:12px; border-radius:14px; border:1.5px dashed var(--line);
+    background:transparent; color:var(--muted); font-size:13.5px; margin-bottom:10px;
+  }
+  .add-slot-full.ghost-empty{ margin-bottom:14px; }
+  .empty-preview{ background:#E5E1D6; color:var(--muted); font-size:18px; }
+  .empty-label{ font-size:13px; color:var(--muted); font-style:italic; }
+  .empty-row{ background:#FBFAF6; }
+
+  .save-bar{ display:flex; gap:10px; margin-top:6px; }
+  .btn{
+    flex:1; padding:13px; border-radius:14px; border:none; font-size:14.5px; font-weight:600;
+  }
+  .btn.primary{ background:var(--ink); color:#fff; }
+  .btn.ghost{ background:transparent; color:var(--muted); border:1px solid var(--line); }
+
+  .override-note{
+    font-size:11.5px; color:var(--muted); background:#F4F1E9; border-radius:10px; padding:8px 10px; margin-bottom:12px;
+  }
+  .override-note a{ color:var(--accent); font-weight:600; }
+
+  @media (min-width:700px){
+    .day-col{ min-height:190px; }
+    .slot .lab{ font-size:9.5px; }
+    .slot svg{ width:19px;height:19px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="title-block">
+      <h1>Mees' weekoverzicht</h1>
+      <p id="rangeLabel">&nbsp;</p>
+    </div>
+    <button class="lockbtn" id="lockBtn" aria-label="Bewerkmodus">&#128274;</button>
+  </header>
+
+  <div class="status-banner" id="statusBanner"></div>
+  <div class="edit-hint" id="editHint">
+    Bewerkmodus staat aan. Tik op een <b>datum</b> om alleen die ene dag anders te maken.
+  </div>
+  <button class="weekday-pattern-btn" id="openWeekdayListBtn">&#128197;&nbsp; Vast weekpatroon bewerken</button>
+  <div class="btn-row-2">
+    <button class="weekday-pattern-btn ghost" id="openRangeListBtn">&#127958;&nbsp; Meerdaagse blokken</button>
+    <button class="weekday-pattern-btn ghost" id="openRecurringListBtn">&#128257;&nbsp; Herhalende blokken</button>
+  </div>
+
+  <div class="pager-row">
+    <button class="pager-btn" id="prevBtn" aria-label="Vorige">&#8249;</button>
+    <div class="dots" id="dots"></div>
+    <button class="pager-btn" id="nextBtn" aria-label="Volgende">&#8250;</button>
+  </div>
+
+  <div class="scroller" id="scroller"></div>
+
+  <div class="legend" id="legend"></div>
+  <footer>Mees' weekoverzicht &middot; automatisch bijgewerkt</footer>
+</div>
+
+<!-- PIN overlay -->
+<div class="overlay" id="pinOverlay">
+  <div class="sheet" style="text-align:center; position:relative;">
+    <button class="close" id="pinClose">&times;</button>
+    <h2 style="margin-top:6px;">Pincode</h2>
+    <p class="sub">Voer de pincode in om te bewerken</p>
+    <div class="pin-dots" id="pinDots"></div>
+    <div class="pin-error" id="pinError"></div>
+    <div class="keypad" id="keypad"></div>
+  </div>
+</div>
+
+<!-- Weekday pattern list overlay -->
+<div class="overlay" id="weekdayListOverlay">
+  <div class="sheet" style="position:relative;">
+    <button class="close" id="weekdayListClose">&times;</button>
+    <h2>Vast weekpatroon</h2>
+    <p class="sub">Tik een dag om het patroon aan te passen &mdash; geldt voor elke week</p>
+    <div id="weekdayList"></div>
+  </div>
+</div>
+
+<!-- Range (meerdaagse blokken) list overlay -->
+<div class="overlay" id="rangeListOverlay">
+  <div class="sheet" style="position:relative;">
+    <button class="close" id="rangeListClose">&times;</button>
+    <h2>Meerdaagse blokken</h2>
+    <p class="sub">Voor vakanties en andere periodes van meerdere dagen &mdash; verschijnt als doorlopende balk</p>
+    <div id="rangeList"></div>
+    <button class="add-slot-full" id="addRangeBtn">+ Nieuwe periode</button>
+  </div>
+</div>
+
+<!-- Recurring (herhalende blokken) list overlay -->
+<div class="overlay" id="recurringListOverlay">
+  <div class="sheet" style="position:relative;">
+    <button class="close" id="recurringListClose">&times;</button>
+    <h2>Herhalende blokken</h2>
+    <p class="sub">Voor dingen die niet elke week maar bv. om de week terugkomen</p>
+    <div id="recurringList"></div>
+    <button class="add-slot-full" id="addRecurringBtn">+ Nieuw herhalend blok</button>
+  </div>
+</div>
+
+<!-- Day editor overlay -->
+<div class="overlay" id="editOverlay">
+  <div class="sheet" style="position:relative;">
+    <button class="close" id="editClose">&times;</button>
+    <h2 id="editTitle">Woensdag</h2>
+    <p class="sub" id="editSub">Vast weekpatroon &mdash; geldt voor elke woensdag</p>
+    <div id="overrideNote"></div>
+    <div id="editorExtraFields"></div>
+    <div id="slotList"></div>
+    <button class="add-slot-full" id="addSlotBtn">+ Blokje toevoegen</button>
+    <button class="add-slot-full ghost-empty" id="addEmptyBtn">+ Leeg vak toevoegen</button>
+    <div class="save-bar">
+      <button class="btn ghost" id="cancelEditBtn">Annuleren</button>
+      <button class="btn primary" id="saveEditBtn">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<script src="firebase-config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
