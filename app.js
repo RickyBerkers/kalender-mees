@@ -135,6 +135,30 @@ function normalizeData(d){
 }
 function newId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
 
+// Firestore staat geen array-in-een-array toe (dus "weekdays: [[...],[...],...]" mag niet).
+// Daarom zetten we het alleen richting Firestore om naar een object {0:[...],1:[...],...}
+// en weer terug naar een array zodra we het inlezen. De rest van de app blijft gewoon arrays gebruiken.
+function weekdaysToFirestoreShape(weekdaysArr){
+  const obj = {};
+  (weekdaysArr||[]).forEach((slots, i) => { obj[i] = slots || []; });
+  return obj;
+}
+function weekdaysFromFirestoreShape(w){
+  if (Array.isArray(w)) return w;
+  const arr = [];
+  for (let i=0;i<7;i++){
+    const v = w && (w[i] !== undefined ? w[i] : w[String(i)]);
+    arr[i] = v || (DEFAULT_TEMPLATE[i] || []);
+  }
+  return arr;
+}
+function toFire(d){ return { ...d, weekdays: weekdaysToFirestoreShape(d.weekdays) }; }
+function fromFire(raw){
+  const d = normalizeData(raw ? { ...raw } : raw);
+  d.weekdays = weekdaysFromFirestoreShape(d.weekdays);
+  return d;
+}
+
 async function initStore(){
   const cfg = window.APP_CONFIG && window.APP_CONFIG.firebase;
   if (cfg && cfg.apiKey && cfg.apiKey !== "VUL_JE_FIREBASE_CONFIG_IN") {
@@ -148,59 +172,59 @@ async function initStore(){
 
       const snap = await getDoc(ref);
       if (!snap.exists()) {
-        await setDoc(ref, DEFAULT_DATA);
+        await setDoc(ref, toFire(DEFAULT_DATA));
       }
 
       store = {
         subscribe(cb){
-          return onSnapshot(ref, (s) => cb(normalizeData(s.data())));
+          return onSnapshot(ref, (s) => cb(fromFire(s.data())));
         },
         async saveWeekday(i, slots){
           const s = await getDoc(ref);
-          const d = normalizeData(s.data());
+          const d = fromFire(s.data());
           d.weekdays[i] = slots;
-          await setDoc(ref, d);
+          await setDoc(ref, toFire(d));
         },
         async saveOverride(dateISO, slots){
           const s = await getDoc(ref);
-          const d = normalizeData(s.data());
+          const d = fromFire(s.data());
           d.overrides[dateISO] = slots;
-          await setDoc(ref, d);
+          await setDoc(ref, toFire(d));
         },
         async clearOverride(dateISO){
           const s = await getDoc(ref);
-          const d = normalizeData(s.data());
+          const d = fromFire(s.data());
           delete d.overrides[dateISO];
-          await setDoc(ref, d);
+          await setDoc(ref, toFire(d));
         },
         async saveRange(range){
           const s = await getDoc(ref);
-          const d = normalizeData(s.data());
+          const d = fromFire(s.data());
           const idx = d.ranges.findIndex(r=>r.id===range.id);
           if (idx>=0) d.ranges[idx] = range; else d.ranges.push(range);
-          await setDoc(ref, d);
+          await setDoc(ref, toFire(d));
         },
         async deleteRange(id){
           const s = await getDoc(ref);
-          const d = normalizeData(s.data());
+          const d = fromFire(s.data());
           d.ranges = d.ranges.filter(r=>r.id!==id);
-          await setDoc(ref, d);
+          await setDoc(ref, toFire(d));
         },
         async saveRecurring(rule){
           const s = await getDoc(ref);
-          const d = normalizeData(s.data());
+          const d = fromFire(s.data());
           const idx = d.recurring.findIndex(r=>r.id===rule.id);
           if (idx>=0) d.recurring[idx] = rule; else d.recurring.push(rule);
-          await setDoc(ref, d);
+          await setDoc(ref, toFire(d));
         },
         async deleteRecurring(id){
           const s = await getDoc(ref);
-          const d = normalizeData(s.data());
+          const d = fromFire(s.data());
           d.recurring = d.recurring.filter(r=>r.id!==id);
-          await setDoc(ref, d);
+          await setDoc(ref, toFire(d));
         },
         async resetDefault(){
-          await setDoc(ref, DEFAULT_DATA);
+          await setDoc(ref, toFire(DEFAULT_DATA));
         },
       };
       usingLocal = false;
