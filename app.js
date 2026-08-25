@@ -137,8 +137,12 @@ async function fetchWeather(){
     const cfg = (window.APP_CONFIG && window.APP_CONFIG.weatherLocation) || { lat: 51.3833, lon: 5.7667 };
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${cfg.lat}&longitude=${cfg.lon}&current=temperature_2m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Europe%2FAmsterdam&forecast_days=10`;
     const res = await fetch(url);
-    if (!res.ok) return;
+    if (!res.ok) {
+      console.warn(`Weerdata ophalen mislukt: server gaf status ${res.status} (${res.statusText}) terug. URL: ${url}`);
+      return;
+    }
     const data = await res.json();
+    console.info("Weerdata ontvangen:", data);
     const times = data && data.daily && data.daily.time;
     const codes = data && data.daily && (data.daily.weather_code || data.daily.weathercode);
     if (times && codes){
@@ -148,6 +152,8 @@ async function fetchWeather(){
         if (mapped) map[t] = mapped;
       });
       weatherByDate = map;
+    } else {
+      console.warn("Weerdata: geen 'daily.time' of 'daily.weather_code' gevonden in de respons.");
     }
     const cur = data && data.current && data.current.temperature_2m;
     const todayIso = isoDate(new Date());
@@ -156,6 +162,8 @@ async function fetchWeather(){
     const dmin = data && data.daily && data.daily.temperature_2m_min;
     if (typeof cur === "number" && idx >= 0 && dmax && dmin){
       todayTemp = { current: cur, min: dmin[idx], max: dmax[idx] };
+    } else {
+      console.warn("Weerdata: kon geen huidige temperatuur/min/max bepalen.", { cur, todayIso, idx, hasMax: !!dmax, hasMin: !!dmin });
     }
     const scroller = document.getElementById("scroller");
     if (scroller) { scroller.dataset.built = "0"; renderAll(); }
