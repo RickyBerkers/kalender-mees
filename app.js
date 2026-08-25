@@ -102,6 +102,69 @@ const ICON_ALIASES = { zon:"sun", ster:"star" };
 function iconKeyOf(name){ return ICON_ALIASES[name] || name; }
 const ICON_KEYS = ICON_CATEGORIES.flatMap(c=>c.keys).map(iconKeyOf);
 
+/* ---------------- Weer (Open-Meteo, geen key nodig) ---------------- */
+const WEATHER_ICONS = {
+  sun: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACR0lEQVR4nO2dS1LDMBAFB4qDcgGWnCLLXCA3DSsViYljy/HMezLdy1QlGk3rayMRAQAAAAD786YOYCun8+X66PPvr89h6xQR8a4OAO5BiBkIMQMhZiDEDISYgRAzSoTM7RngL+lCmoyRpVTGnipkWpERpVQ3qLTHDM8qMMrjjUd1yI49rYc8C3yEnjIXY3bsqUPWqFKUvTt9Uh9NinqoLVn2jiJFLSOi+H3InpPkGpE9v+0gI0Lwguq24r0VfaU3rSlLsaqaIll+ns6X616tt5elcl9pMHtgvR/InF+W5jXVXslWSMVk77hBtXzaW7XyclrhNeyEVCfJTYqVEFVynKTYCFEnRV1+w0KISzIc4rAQAr/IhTi0ylvU8ciFwD1SIerWOIcyLnqIGQgxQybEdbhqqOL72PrFnoAdH+K5slnIfyW7ITKHmIEQMxBiBkLM2Dyps3LKgVVWJ8P/Kekc7j1MFR9ziBkIMUMqxHXYUsZFDzFDLsStl6jjkQuBeyyEqFtlwyEOCyER+mSoy2/YCInQJcVFRoSZkIj65DjJiDB9p16VJDcZESIha66ryE5Wz9G2SqSHPhuVyek9/HnoQ5+v9ojsU7hzZRzyWPTew9Pe59SXfvNQFwc4VHQt6ljLLjB7hJuMCP01IKUXmN3iKKOhlCK5nslZRkMlpfx6phFkNBQNqnSVlVGRiv+SULkvKdupj9QzprTYD7HKOgpVDQohZiDEDISYgRAzEGIGQsxAiBkIAQAAAAAAAAAAAAAAAAAAAIB+fgAleySe0Xp6pgAAAABJRU5ErkJggg==",
+  cloudsun: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACMElEQVR4nO2bS67CMAwAzRMH5QIsOQVLLsBNeatKgFooieP4MyOxQaIJHhzHaREBAAAAAH0OloNdb/fH+3uX88l0Dt75mz0BeAUhzkCIMxDiDIQ4I7SQtV1bdMIKWWRkkxJSyLuETFLCNWXZm8tQGZJdhkggIRVkiAQRUkWGiIPDxYVvAX7+bFYZIgZCWnZAWwG/3u6PzDJEBgvp2Y5mD/wWw2pIb2+Qqbf4hSFCtIJZUYq6EO0gVpOiKmRU8CpJURMyOmhVpIRoDCuBEGeoCLFaTiosW8fZE+hlj6RITSZLljPCZ4gGnrKsrJBf65HVaXM5IRobg+UaI8SoXNBy99MThBHz1JaidjELKa1f3vPc3km/y4rWI6UWYt1IaoynJmT0tjBSc9eDaoaMClrLdWcds/SOq75kaUuJJENj/CE1REtKlWXqmWFFvTeYa5//9Mu73u6P5dUz7mzCPJe1dnThPfgtP8oQTy56D/wW7oX0EFFKi5AwjWGVAh9GSMQMaSGEkCoyRCbcD9n7X49KEp5xdYMqk4TWmudCSCYRvYSoIZVAyAB6tugIUaa3X0KIM0yFZC/eGqcJZIgS4Z46yZwdmudsZIgzTIRkzg5tyBBnIMQZCHEGQpyBEGcgxBkmQqo8oKABGeIMMyFkyT7IEGeYCiFLvmOeIUj5zJQlCynbTKshSFlnalG/nE8HxLziKhi9900yyHX7BfbKySABAAAAAAAAAAAAAAAAAAAAIBz/ipH26wK7EgQAAAAASUVORK5CYII=",
+  cloud: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAABcklEQVR4nO3cwW3CQBBAUYhSKA1wpIoc00A6TY5RUBBgZnbGu++dkR38NV6MNhwOAAAAAAAAAAAARDpW/wGjfXx+fd97zeV8KrsuSwR5JMIto+NMHeSVENdGhZkySGSIa9lh3jIPXiEzxojjTxUk+2KNOM80QUbFyD7fFEFGx8g8724W9aqL/ojIhf496kDROgfI1G5C9hoiakparSF7jRGpxS1LiF/lEzJLjKj3URpklhiRyoKI8b/yWxZ/lQQxHbeZkGaGfuw1GfcNeVJfIUTUk3rqhKwQIlraGiLGNilBVosR+fV7eJDVYkQLDbJijOhdKGFBxIjhwXCjrP1ZIUFWm47MzXIm5Entdy6uNB0j9veakGYEaUaQZgRpRpBmBGnm5SCV/yA5IxPSTEgQUxLHhDQTFsSUxAidEFFeF37LEuU1KWuIKNulLeqibJP6KetyPh2Fec7Qi7WnX+WpUvYmu/9uFQAAAAAAAAAAAAAM9gMONX0HPLighgAAAABJRU5ErkJggg==",
+  rain: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACF0lEQVR4nO3cQU4qURCF4cK4UDbA0FU4dAPuVAfGGIiEpvtU1bn3/t/YNM/+qWqQfkQAAAAAAAAAYzh1/wOqvX98fj36mbfLue28LBFkS4R7quNMHeRIiFtVYaYMogxxKzvMS+bBO2TGqDj+VEGyT1bF40wTpCpG9uNNEaQ6RubjDnNR7zrpWygv9K+qA6k5B8hkNyGjhlBNidU1ZNQYShYrixB/2idklhiq36M1yCwxlNqCEON/7SsL11qCMB33MSFmSl/2MhmPlbxTXyGE6p166oSsEEIt7RpCjH1SgqwWQ/nnd3mQ1WKoSYOsGEN9F4osCDE0eGO4U9b9WZIgq01H5s1yTMiT7O9cXGk6Ku7vZULMEMQMQcwQxAxBzBDEzOEgnf9BckZMiBlJEKZEhwkxIwvClGhIJ4Qox8lXFlGOSbmGEGW/tIs6UfZJfZX1djmfCPOc0pM10rfydGn7Jd2/twoAAGygunXI7TgKLa9ibk/A3ldTbsdRKH/gR8/GrSfD7TgqfB5ixiqI6tnodpxnlAZxuwg7Xcx/WU0IjIK4rZmuV1plQdzWjOO6ijCaEPywCOK2ZjrfGJYEcVszrusqwmBC3J7V3R+KpQdxe1Y7T0eEwYTgWmsQtzXTva4ikoO4rRn3dRXByrLTFsRtzTisq4gBvlHO7TjZWFlmWr6VtPuzb6fP0Nu5raBRVhkAAAAAAADg5hvdfPmcP4+wUQAAAABJRU5ErkJggg==",
+  snow: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAB90lEQVR4nO3cQXKDMBBEUTuVg/oCXvoUWeYCuWmyciWhwAjomR6k/5YpBEHtESDLXC4AAAAAAKCOq/sfyPbx+fW9ts3jfrP1yxCBtISwJDucrgM5EsRUVjBdBqIMYio6mLfInTtEhpGx/64Cie6sjON0E0hWGNHH6yKQ7DAij3uai7qr01soL/Tvqh2pVQ4gUrkKOWsQqiopdQ05axhKJYYsgvhlr5BewlCdhzWQXsJQsgVCGPPsQxb+swRCdSyjQopJve2lMtalPKmPEITqST20QkYIQi3sGkIY+4QEMloYyul3eSCjhaEmDWTEMNSrUGSBEIYGD4Y7Ra3PkgQyWnVELpajQjYqv3JxpOrIWN9LhRRDIMUQSDEEUgyBFEMgxRwOxPkDyR5RIcVIAqFKdKiQYmSBUCUa0gohlOPkQxahHBNyDSGU/cIu6oSyT+hd1uN+uxLMNqmddaa38rjYTrL6e6sAAAAAABjP3NP6lukVd/sI9ned/O2Aub9VbR8l/X1ZrSf73G46n+VuH80yedfaKUud4W4fiVUnxVgCafnkvdrG3T5S2kHddy8K/IJqQARSDIEUU/Y79bXx2t0+Stl3Lr7axt0+EkNWMemBzH3ylhbUtU7+ZbaPlj6X9TzxvWO4u33X3NPnFaffAQAAAAAAAAAAevcDUTIu6yc7gREAAAAASUVORK5CYII=",
+  storm: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAACXUlEQVR4nO3cwW3CQBSE4SFKGamFPnJD8pkjVeSYc6LUkgpSBH04JyvEAmHst7tvZuc/Ixv86XkxMgacc84551x8u9ZvoHZv71/jvdecjodmx6ULkCUIt6qNIw2yBWJeLRhJkEiIeaVhnkpuvEUlMWpsXwqk9MGqsR8ZkFoYpfcnAVIbo+R+aRb1Vgd9SZEL/XPUhqLLDFCydBPCChE1JanWEFaMyFKcsgzxV/MJUcGI+hxNQVQwImsGYozrNT9luf81AfF03M4TkqyqX3s9GfercqXeA0TUlXrRCekBIrpia4gx1lUEpDeMyJ/fw0F6w4guFKRHjOi7UMJAjBGTLwxXVur+rBCQ3qaj5M1ynpAHS3/nYk/TUeP+Xk9IsgySLIMkyyDJMkiyDJKszSAt/yCpmCckWSEgnpK4PCHJCgPxlMQUOiFG2V74Kcso2yqyhhhlfcUWdaOsq+i3rNPxsGsN8/rz2XL3D1f1YNV+Ks952I8A8PLxTTOtzd5ojedWnYf9yIQh3XnYj9OEMCV5pc4IMSUHwowBCIJcxrh+SIGwTwcgBKKAAYiAXMNgPF0BIiBK0YOonKqmqEHUMABykFuxrh9AwifKLS1yOjIBUk6IKgZACKKMARCCRJURAyADiZqOrBgAEUgPGAAJSC8YAAlIRAwYAAFIxHSwYADEF4bXUvjVN/2ELE0BAxACmceIAYiAzKeDFQMQAFHCAMhB1DAAcpDLFDAAYpDL6VDBAEhBVDEAQhBlDIAMRB0DIAOZUsWgivX/HpIZI1HGSJYxEmWMRBnDOeecc8452X4BasIAQQBSDAMAAAAASUVORK5CYII=",
+};
+
+const WEATHER_CODE_MAP = {
+  0: "sun",
+  1: "cloudsun", 2: "cloudsun",
+  3: "cloud", 45: "cloud", 48: "cloud",
+  51: "rain", 53: "rain", 55: "rain", 56: "rain", 57: "rain",
+  61: "rain", 63: "rain", 65: "rain", 66: "rain", 67: "rain",
+  80: "rain", 81: "rain", 82: "rain",
+  71: "snow", 73: "snow", 75: "snow", 77: "snow", 85: "snow", 86: "snow",
+  95: "storm", 96: "storm", 99: "storm",
+};
+let weatherByDate = {}; // iso -> weathercode-key ("sun"/"rain"/...)
+
+function weatherIconHTML(iso){
+  const key = weatherByDate[iso];
+  if (!key || !WEATHER_ICONS[key]) return "";
+  return `<img class="wx-icon" src="${WEATHER_ICONS[key]}" alt="">`;
+}
+
+let todayTemp = null; // { current, min, max } of null
+
+async function fetchWeather(){
+  try {
+    const cfg = (window.APP_CONFIG && window.APP_CONFIG.weatherLocation) || { lat: 51.3833, lon: 5.7667 };
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${cfg.lat}&longitude=${cfg.lon}&current=temperature_2m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Europe%2FAmsterdam&forecast_days=10`;
+    const res = await fetch(url);
+    if (!res.ok) return;
+    const data = await res.json();
+    const times = data && data.daily && data.daily.time;
+    const codes = data && data.daily && (data.daily.weather_code || data.daily.weathercode);
+    if (times && codes){
+      const map = {};
+      times.forEach((t, i) => {
+        const mapped = WEATHER_CODE_MAP[codes[i]];
+        if (mapped) map[t] = mapped;
+      });
+      weatherByDate = map;
+    }
+    const cur = data && data.current && data.current.temperature_2m;
+    const todayIso = isoDate(new Date());
+    const idx = times ? times.indexOf(todayIso) : -1;
+    const dmax = data && data.daily && data.daily.temperature_2m_max;
+    const dmin = data && data.daily && data.daily.temperature_2m_min;
+    if (typeof cur === "number" && idx >= 0 && dmax && dmin){
+      todayTemp = { current: cur, min: dmin[idx], max: dmax[idx] };
+    }
+    const scroller = document.getElementById("scroller");
+    if (scroller) { scroller.dataset.built = "0"; renderAll(); }
+    renderWeatherMini();
+  } catch (e) {
+    console.warn("Weerdata ophalen mislukt (geen probleem, widget blijft gewoon weg):", e);
+  }
+}
+
 function iconSvg(key, colorForCutout, mainColor){
   let svg = ICONS[iconKeyOf(key)] || ICONS.star;
   svg = svg.replace(/currentColor/g, colorForCutout || "#000");
@@ -124,13 +187,14 @@ const DEFAULT_TEMPLATE = [
 let store; // { getData(), subscribe(cb), saveWeekday(i,slots), saveOverride(dateISO,slots), clearOverride(dateISO) }
 let usingLocal = false;
 
-const DEFAULT_DATA = { weekdays: DEFAULT_TEMPLATE, overrides: {}, ranges: [], recurring: [] };
+const DEFAULT_DATA = { weekdays: DEFAULT_TEMPLATE, overrides: {}, ranges: [], recurring: [], notes: {} };
 function normalizeData(d){
   d = d || {};
   if (!d.weekdays) d.weekdays = DEFAULT_TEMPLATE;
   if (!d.overrides) d.overrides = {};
   if (!d.ranges) d.ranges = [];
   if (!d.recurring) d.recurring = [];
+  if (!d.notes) d.notes = {};
   return d;
 }
 function newId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
@@ -197,6 +261,13 @@ async function initStore(){
           delete d.overrides[dateISO];
           await setDoc(ref, toFire(d));
         },
+        async saveNote(dateISO, text){
+          const s = await getDoc(ref);
+          const d = fromFire(s.data());
+          if (text && text.trim()) d.notes[dateISO] = text.trim();
+          else delete d.notes[dateISO];
+          await setDoc(ref, toFire(d));
+        },
         async saveRange(range){
           const s = await getDoc(ref);
           const d = fromFire(s.data());
@@ -251,6 +322,12 @@ async function initStore(){
     async saveWeekday(i, slots){ const d = read(); d.weekdays[i] = slots; write(d); notify(d); },
     async saveOverride(dateISO, slots){ const d = read(); d.overrides[dateISO]=slots; write(d); notify(d); },
     async clearOverride(dateISO){ const d = read(); delete d.overrides[dateISO]; write(d); notify(d); },
+    async saveNote(dateISO, text){
+      const d = read();
+      if (text && text.trim()) d.notes[dateISO] = text.trim();
+      else delete d.notes[dateISO];
+      write(d); notify(d);
+    },
     async saveRange(range){
       const d = read();
       const idx = d.ranges.findIndex(r=>r.id===range.id);
@@ -365,10 +442,21 @@ function dayColHTML(date, opts){
   let slotsHTML = withPadding(slots).map(renderSlot).join("");
   const iso = isoDate(date);
   const editableCls = editMode ? "editable" : "";
+  const note = currentData.notes && currentData.notes[iso];
+  const noteHTML = note ? `<div class="day-note">&#128221; ${note}</div>` : "";
   return `<div class="day-col ${isToday?"today":""} ${editableCls}" data-date="${iso}">
-      <div class="daynum">${label}</div>
+      <div class="daynum">${label}${weatherIconHTML(iso)}</div>
       <div class="slots">${slotsHTML}</div>
+      ${noteHTML}
     </div>`;
+}
+
+function nightsLabel(startIso){
+  const n = diffDays(startIso, isoDate(new Date()));
+  if (n > 1) return ` · nog ${n} nachtjes!`;
+  if (n === 1) return ` · nog 1 nachtje!`;
+  if (n === 0) return ` · vandaag!`;
+  return "";
 }
 
 function alldayRowHTML(monday){
@@ -392,10 +480,11 @@ function alldayRowHTML(monday){
   const bars = segs.map(seg => {
     const bg = resolveColor(seg.r.color);
     const capCls = `${seg.isTrueStart?'cap-start':''} ${seg.isTrueEnd?'cap-end':''}`;
+    const countdown = seg.isTrueStart ? nightsLabel(seg.r.start) : "";
     return `<div class="allday-bar ${capCls} ${editMode?'editable':''}" data-range-id="${seg.r.id}"
         style="grid-column:${seg.startCol+1} / ${seg.endCol+2}; background:${bg};">
       <div class="allday-icon">${iconSvg(seg.r.icon, bg)}</div>
-      <span class="allday-label">${seg.r.label||""}</span>
+      <span class="allday-label">${seg.r.label||""}${countdown}</span>
     </div>`;
   }).join("");
   return `<div class="allday-row">${bars}</div>`;
@@ -458,6 +547,66 @@ function updateRangeLabel(){
     `${startMonday.getDate()} ${MONTHS_SHORT[startMonday.getMonth()]} – ${endDate.getDate()} ${MONTHS_SHORT[endDate.getMonth()]} ${endDate.getFullYear()}`;
 }
 
+/* ---------------- Temperatuur-gauge (à la Apple weer-widget) ---------------- */
+function polarXY(cx, cy, r, angleDeg){
+  const rad = (angleDeg - 90) * Math.PI / 180;
+  return { x: cx + r*Math.cos(rad), y: cy + r*Math.sin(rad) };
+}
+function arcPath(cx, cy, r, startAngle, endAngle){
+  const p1 = polarXY(cx, cy, r, startAngle);
+  const p2 = polarXY(cx, cy, r, endAngle);
+  const largeArcFlag = (endAngle - startAngle) > 180 ? 1 : 0;
+  return `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${r} ${r} 0 ${largeArcFlag} 1 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+}
+function tempGaugeSVG(cur, min, max, mini){
+  const START = -135, END = 135; // 270° boog, opening onderaan
+  if (mini){
+    const size = 64, cx = size/2, cy = size/2, r = 20;
+    let frac = (max > min) ? (cur - min) / (max - min) : 0.5;
+    frac = Math.max(0, Math.min(1, frac));
+    const dotAngle = START + (END-START)*frac;
+    const dot = polarXY(cx, cy, r, dotAngle);
+    const minP = polarXY(cx, cy, r+14, START);
+    const maxP = polarXY(cx, cy, r+14, END);
+    return `
+    <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+      <path d="${arcPath(cx,cy,r,START,END)}" fill="none" stroke="#E5E1D6" stroke-width="6" stroke-linecap="round"/>
+      <path d="${arcPath(cx,cy,r,START,dotAngle)}" fill="none" stroke="#E4633E" stroke-width="6" stroke-linecap="round"/>
+      <circle cx="${dot.x.toFixed(2)}" cy="${dot.y.toFixed(2)}" r="3.6" fill="#fff" stroke="#E4633E" stroke-width="2"/>
+      <text x="${cx}" y="${cy+1}" text-anchor="middle" dominant-baseline="middle" font-size="14" font-weight="700" fill="#22303C" font-family="-apple-system,sans-serif">${Math.round(cur)}&#176;</text>
+      <text x="${minP.x.toFixed(2)}" y="${(minP.y+3).toFixed(2)}" text-anchor="middle" font-size="8.5" fill="#9BA3AC" font-family="-apple-system,sans-serif">${Math.round(min)}&#176;</text>
+      <text x="${maxP.x.toFixed(2)}" y="${(maxP.y+3).toFixed(2)}" text-anchor="middle" font-size="8.5" fill="#9BA3AC" font-family="-apple-system,sans-serif">${Math.round(max)}&#176;</text>
+    </svg>`;
+  }
+  const size = 140, cx = size/2, cy = size/2, r = 54;
+  let frac = (max > min) ? (cur - min) / (max - min) : 0.5;
+  frac = Math.max(0, Math.min(1, frac));
+  const dotAngle = START + (END-START)*frac;
+  const dot = polarXY(cx, cy, r, dotAngle);
+  return `
+  <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <path d="${arcPath(cx,cy,r,START,END)}" fill="none" stroke="#E5E1D6" stroke-width="10" stroke-linecap="round"/>
+    <path d="${arcPath(cx,cy,r,START,dotAngle)}" fill="none" stroke="#E4633E" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="${dot.x.toFixed(2)}" cy="${dot.y.toFixed(2)}" r="7" fill="#fff" stroke="#E4633E" stroke-width="4"/>
+    <text x="${cx}" y="${cy+2}" text-anchor="middle" dominant-baseline="middle" font-size="30" font-weight="700" fill="#22303C" font-family="-apple-system,sans-serif">${Math.round(cur)}&#176;</text>
+    <text x="${polarXY(cx,cy,r+22,START).x.toFixed(2)}" y="${(polarXY(cx,cy,r+22,START).y+4).toFixed(2)}" text-anchor="middle" font-size="13" fill="#9BA3AC" font-family="-apple-system,sans-serif">${Math.round(min)}&#176;</text>
+    <text x="${polarXY(cx,cy,r+22,END).x.toFixed(2)}" y="${(polarXY(cx,cy,r+22,END).y+4).toFixed(2)}" text-anchor="middle" font-size="13" fill="#9BA3AC" font-family="-apple-system,sans-serif">${Math.round(max)}&#176;</text>
+  </svg>`;
+}
+function weatherMiniHTML(){
+  if (!todayTemp) return "";
+  const iso = isoDate(new Date());
+  const wKey = weatherByDate[iso];
+  const iconHTML = wKey && WEATHER_ICONS[wKey] ? `<img class="wx-icon-sm" src="${WEATHER_ICONS[wKey]}" alt="">` : "";
+  return `<div class="wx-mini" title="Weer vandaag: ${Math.round(todayTemp.current)}° (${Math.round(todayTemp.min)}°–${Math.round(todayTemp.max)}°)">
+      ${iconHTML}
+      ${tempGaugeSVG(todayTemp.current, todayTemp.min, todayTemp.max, true)}
+    </div>`;
+}
+function renderWeatherMini(){
+  document.getElementById("wxMini").innerHTML = weatherMiniHTML();
+}
+
 function renderLegend(){
   const items = [
     {icon:"school", label:"School", color:"school"},
@@ -470,6 +619,27 @@ function renderLegend(){
       <div class="sw" style="background:${COLORS[it.color]}">${iconSvg(it.icon, COLORS[it.color])}</div>
       <span>${it.label}</span>
     </div>`).join("");
+}
+
+/* ---------------- Aftel-banner voor eerstvolgend meerdaags blok ---------------- */
+function goToDateISO(iso){
+  const weekIdx = Math.floor(diffDays(iso, isoDate(startMonday)) / 7);
+  const pageIdx = Math.floor(weekIdx / WEEKS_PER_PAGE);
+  goToPage(pageIdx);
+}
+function renderUpcomingBanner(){
+  const todayISO = isoDate(new Date());
+  const upcoming = (currentData.ranges||[])
+    .filter(r => r.start > todayISO)
+    .sort((a,b)=>a.start.localeCompare(b.start))[0];
+  const el = document.getElementById("upcomingBanner");
+  if (!upcoming){ el.innerHTML = ""; return; }
+  const bg = resolveColor(upcoming.color);
+  el.innerHTML = `<button class="upcoming-banner" id="upcomingBannerBtn" style="background:${bg}22; color:${bg};">
+      <span class="ic" style="background:${bg}"><span style="color:#fff; display:flex;">${iconSvg(upcoming.icon,"#fff")}</span></span>
+      <span>${upcoming.label||"Binnenkort"}${nightsLabel(upcoming.start)}</span>
+    </button>`;
+  document.getElementById("upcomingBannerBtn").onclick = () => goToDateISO(upcoming.start);
 }
 
 /* ---------------- Paging controls ---------------- */
@@ -535,7 +705,7 @@ function applyEditModeUI(){
   document.getElementById("lockBtn").innerHTML = editMode ? "&#128275;" : "&#128274;";
   document.getElementById("editHint").classList.toggle("show", editMode);
   document.getElementById("openWeekdayListBtn").classList.toggle("show", editMode);
-  document.querySelector(".btn-row-2").classList.toggle("show", editMode);
+  document.querySelectorAll(".btn-row-2").forEach(el => el.classList.toggle("show", editMode));
   const scroller = document.getElementById("scroller");
   scroller.dataset.built = "0";
   renderAll();
@@ -589,6 +759,12 @@ function openEditor(ctx){
     noteEl.innerHTML = hasOverride
       ? `<div class="override-note">Deze dag wijkt af van het vaste patroon. <a href="#" id="clearOverrideLink">Terug naar vast patroon</a></div>`
       : `<div class="override-note">Je past hier alleen déze datum aan, het vaste weekpatroon blijft ongewijzigd.</div>`;
+    const existingNote = (currentData.notes && currentData.notes[ctx.dateISO]) || "";
+    extra.innerHTML = `
+      <div class="field-row">
+        <label>Kort briefje voor deze dag (optioneel)</label>
+        <input type="text" class="field-input" id="noteInput" maxlength="60" placeholder="bv. zwemspullen mee" value="${existingNote.replace(/"/g,'&quot;')}">
+      </div>`;
   } else if (ctx.mode === "range"){
     document.getElementById("editTitle").textContent = ctx.rangeId ? "Periode bewerken" : "Nieuwe periode";
     document.getElementById("editSub").textContent = "Verschijnt als doorlopende balk over meerdere dagen";
@@ -632,11 +808,13 @@ function openEditor(ctx){
   });
   const delRange = document.getElementById("deleteRangeBtn");
   if (delRange) delRange.addEventListener("click", async ()=>{
+    if (!confirm(`"${ctx.slots[0]?.label||'deze periode'}" verwijderen? Dit kan niet ongedaan gemaakt worden.`)) return;
     await store.deleteRange(ctx.rangeId);
     closeEditor();
   });
   const delRecur = document.getElementById("deleteRecurringBtn");
   if (delRecur) delRecur.addEventListener("click", async ()=>{
+    if (!confirm(`"${ctx.slots[0]?.label||'dit herhalende blok'}" verwijderen? Dit kan niet ongedaan gemaakt worden.`)) return;
     await store.deleteRecurring(ctx.recurId);
     closeEditor();
   });
@@ -789,6 +967,8 @@ document.getElementById("saveEditBtn").addEventListener("click", async ()=>{
     await store.saveWeekday(editorCtx.index, clean);
   } else if (editorCtx.mode === "override"){
     await store.saveOverride(editorCtx.dateISO, clean);
+    const noteVal = document.getElementById("noteInput").value;
+    await store.saveNote(editorCtx.dateISO, noteVal);
   } else if (editorCtx.mode === "range"){
     const start = document.getElementById("rangeStartInput").value;
     const end = document.getElementById("rangeEndInput").value;
@@ -905,6 +1085,7 @@ async function main(){
   buildKeypad();
   renderLegend();
   await initStore();
+  fetchWeather();
 
   if (usingLocal){
     const b = document.getElementById("statusBanner");
@@ -912,14 +1093,36 @@ async function main(){
     b.classList.add("show");
   }
 
+  let firstDataReceived = false;
+  document.getElementById("loadingBanner").classList.add("show");
   store.subscribe((data)=>{
     currentData = data;
     const scroller = document.getElementById("scroller");
     scroller.dataset.built = "0";
     renderAll();
+    renderWeatherMini();
+    renderUpcomingBanner();
     if (document.getElementById("weekdayListOverlay").classList.contains("show")) renderWeekdayList();
     if (document.getElementById("rangeListOverlay").classList.contains("show")) renderRangeList();
     if (document.getElementById("recurringListOverlay").classList.contains("show")) renderRecurringList();
+    if (!firstDataReceived){
+      firstDataReceived = true;
+      document.getElementById("loadingBanner").classList.remove("show");
+    }
+  });
+
+  document.getElementById("todayBtn").addEventListener("click", ()=>goToPage(0));
+  document.getElementById("backupBtn").addEventListener("click", ()=>{
+    const blob = new Blob([JSON.stringify(currentData, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const stamp = isoDate(new Date());
+    a.href = url;
+    a.download = `mees-kalender-backup-${stamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   });
 
   document.getElementById("lockBtn").addEventListener("click", ()=>{
